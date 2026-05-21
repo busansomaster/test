@@ -259,6 +259,11 @@ footer{
 <footer>
     © 2026 BUSANSO NATION • All Rights Reserved
 </footer>
-
+<script>
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/service-worker.js')
+    .then(() => console.log('Service Worker Registered'));
+}
+</script>
 </body>
 </html>
