@@ -2,9 +2,11 @@
   "name": "BUSANSO NATION",
   "short_name": "BUSANSO",
   "start_url": "./home.html",
+  "scope": "./",
   "display": "standalone",
-  "background_color": "#000000",
+  "background_color": "#111111",
   "theme_color": "#111111",
+  "description": "BUSANSO NATION Streaming App",
   "icons": [
     {
       "src": "./icon-192.png",
