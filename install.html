@@ -150,7 +150,7 @@ p{
 </div>
 
 <script>
-let deferredPrompt;
+let deferredPrompt = null;
 
 const installBtn = document.getElementById('installBtn');
 const messageBox = document.getElementById('messageBox');
@@ -159,96 +159,91 @@ const isStandalone =
 window.matchMedia('(display-mode: standalone)').matches ||
 window.navigator.standalone === true;
 
-// SHOW CUSTOM MESSAGE
-function showMessage(title, text, success=false){
-
-    messageBox.style.display = 'block';
-
-    if(success){
-        messageBox.classList.add('success');
-    } else {
-        messageBox.classList.remove('success');
-    }
-
-    messageBox.innerHTML = `
-        <h3>${title}</h3>
-        ${text}
-    `;
-}
-
-// ALREADY INSTALLED
+// INSTALLED
 if(isStandalone){
 
     installBtn.innerText = 'OPEN APP';
 
-    showMessage(
-        'App Installed',
-        '<p>BUSANSO NATION is already installed on this device.</p>',
-        true
-    );
-
     installBtn.onclick = () => {
-
         window.location.href = './home.html';
-
     };
 
 } else {
 
-    installBtn.innerText = 'INSTALL APP';
+    installBtn.innerText = 'PREPARING INSTALL...';
+    installBtn.disabled = true;
 
-    // SAVE INSTALL PROMPT
+    // WAIT FOR INSTALL PROMPT
     window.addEventListener('beforeinstallprompt', (e) => {
 
         e.preventDefault();
 
         deferredPrompt = e;
 
-        console.log('Install prompt ready');
+        installBtn.disabled = false;
+        installBtn.innerText = 'INSTALL APP';
+
+        // AUTO OPEN INSTALL POPUP
+        setTimeout(async () => {
+
+            try {
+
+                await deferredPrompt.prompt();
+
+                const choice =
+                await deferredPrompt.userChoice;
+
+                if(choice.outcome === 'accepted'){
+
+                    installBtn.innerText =
+                    'INSTALLING...';
+
+                }
+
+            } catch(err){
+                console.log(err);
+            }
+
+        }, 1000);
 
     });
 
-    // INSTALL BUTTON CLICK
+    // BUTTON CLICK
     installBtn.onclick = async () => {
 
-        // REAL INSTALL POPUP
         if(deferredPrompt){
 
-            deferredPrompt.prompt();
+            await deferredPrompt.prompt();
 
-            const { outcome } =
+            const result =
             await deferredPrompt.userChoice;
 
-            if(outcome === 'accepted'){
+            if(result.outcome === 'accepted'){
 
-                showMessage(
-                    'Installing...',
-                    '<p>BUSANSO NATION is being installed.</p>',
-                    true
-                );
+                installBtn.innerText =
+                'INSTALLING...';
 
             }
 
-            deferredPrompt = null;
-
         } else {
 
-            // CUSTOM BEAUTIFUL FALLBACK
-            showMessage(
-                'Install Manually',
-                `
-                <p>
-                Your browser has not enabled automatic installation yet.
-                </p>
+            messageBox.style.display = 'block';
 
-                <ol>
-                    <li>Open this website in <b>Google Chrome</b></li>
-                    <li>Tap the <b>3 dots menu</b> at top right</li>
-                    <li>Tap <b>Install App</b></li>
-                    <li>Tap <b>Install</b></li>
-                </ol>
-                `
-            );
+            messageBox.innerHTML = `
+            <h3>Preparing Installation...</h3>
+
+            <p>
+            Please wait a few seconds.
+            Chrome has not enabled installation yet.
+            </p>
+            `;
+
+            // RETRY
+            setTimeout(() => {
+
+                location.reload();
+
+            }, 4000);
 
         }
 
@@ -256,16 +251,10 @@ if(isStandalone){
 
 }
 
-// INSTALLED EVENT
+// AFTER INSTALL
 window.addEventListener('appinstalled', () => {
 
     installBtn.innerText = 'OPEN APP';
-
-    showMessage(
-        'Installation Complete',
-        '<p>BUSANSO NATION installed successfully.</p>',
-        true
-    );
 
     installBtn.onclick = () => {
 
@@ -273,8 +262,16 @@ window.addEventListener('appinstalled', () => {
 
     };
 
-});
+    // AUTO OPEN APP
+    setTimeout(() => {
 
+        window.location.href = './home.html';
+
+    }, 1500);
+
+});
+</script>
+    <script>
 // REGISTER SERVICE WORKER
 if('serviceWorker' in navigator){
 
