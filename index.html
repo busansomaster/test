@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Install BUSANSO NATION</title>
+
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#111111">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial, sans-serif;
+}
+
+body{
+    background:#0f0f0f;
+    color:white;
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    padding:20px;
+}
+
+.container{
+    width:100%;
+    max-width:500px;
+    background:#1a1a1a;
+    border-radius:20px;
+    padding:30px;
+    text-align:center;
+    box-shadow:0 0 25px rgba(0,0,0,0.5);
+}
+
+.logo{
+    width:120px;
+    height:120px;
+    border-radius:25px;
+    object-fit:cover;
+    margin-bottom:20px;
+}
+
+h1{
+    font-size:32px;
+    margin-bottom:10px;
+}
+
+p{
+    color:#cfcfcf;
+    line-height:1.6;
+    margin-bottom:25px;
+}
+
+.install-btn{
+    background:#ff0000;
+    color:white;
+    border:none;
+    padding:16px 30px;
+    font-size:18px;
+    border-radius:12px;
+    cursor:pointer;
+    width:100%;
+    transition:0.3s;
+    margin-bottom:15px;
+}
+
+.install-btn:hover{
+    opacity:0.9;
+    transform:scale(1.02);
+}
+
+.note{
+    font-size:14px;
+    color:#999;
+    margin-top:15px;
+}
+
+.steps{
+    text-align:left;
+    margin-top:25px;
+    background:#111;
+    padding:18px;
+    border-radius:12px;
+}
+
+.steps h3{
+    margin-bottom:12px;
+}
+
+.steps li{
+    margin-bottom:10px;
+    color:#ddd;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+    <!-- CHANGE LOGO -->
+    <img src="logo.png" class="logo" alt="BUSANSO NATION">
+
+    <h1>Install BUSANSO NATION</h1>
+
+    <p>
+        Install the BUSANSO NATION app on your Android phone,
+        tablet, or Smart TV for faster streaming and fullscreen viewing.
+    </p>
+
+    <button id="installBtn" class="install-btn">
+        INSTALL APP
+    </button>
+
+    <div class="steps">
+        <h3>If install button does not appear:</h3>
+        <ol>
+            <li>Open website in Google Chrome</li>
+            <li>Tap the 3 dots menu</li>
+            <li>Select <b>Install App</b> or <b>Add to Home Screen</b></li>
+            <li>Confirm installation</li>
+        </ol>
+    </div>
+
+    <div class="note">
+        Compatible with Android phones, tablets, Android TV, Chromecast and Smart TVs.
+    </div>
+
+</div>
+
+<script>
+let deferredPrompt;
+const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+const installBtn = document.getElementById('installBtn');
+
+installBtn.innerText = 'CHECKING...';
+
+if (isStandalone) {
+    installBtn.style.display = 'block';
+    installBtn.innerText = 'OPEN APP';
+
+    installBtn.addEventListener('click', () => {
+        window.location.href = '/';
+    });
+} else {
+    installBtn.style.display = 'none';
+}
+
+window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+
+    installBtn.style.display = 'block';
+});
+
+installBtn.addEventListener('click', async () => {
+
+    if (!deferredPrompt) {
+        alert('Installation option not available. Use Chrome menu > Install App');
+        return;
+    }
+
+    deferredPrompt.prompt();
+
+    const { outcome } = await deferredPrompt.userChoice;
+
+    if (outcome === 'accepted') {
+        console.log('App installed');
+    } else {
+        console.log('Install cancelled');
+    }
+
+    deferredPrompt = null;
+});
+
+window.addEventListener('appinstalled', () => {
+    alert('BUSANSO NATION installed successfully!');
+});
+</script>
+
+</body>
+</html>
