@@ -225,7 +225,7 @@ window.addEventListener(
 // INSTALL BUTTON
 installBtn.onclick = async ()=>{
 
-    // OPEN APP
+    // APP INSTALLED
     if(isStandalone){
 
         window.location.href =
@@ -235,54 +235,43 @@ installBtn.onclick = async ()=>{
 
     }
 
-    // REAL INSTALL
+    // INSTALL AVAILABLE
     if(deferredPrompt){
+
+        installBtn.innerText =
+        'INSTALLING...';
 
         deferredPrompt.prompt();
 
-        const choice =
-        await deferredPrompt.userChoice;
-
-        console.log(choice.outcome);
-
-        if(choice.outcome === 'accepted'){
-
-            installBtn.innerText =
-            'INSTALLING...';
-
-        }
-
-    } else {
-
-        // NICE MESSAGE
-        messageBox.style.display =
-        'block';
-
-        messageBox.innerHTML = `
-
-        <h3>
-        Preparing Installation...
-        </h3>
-
-        <p style="
-        margin-top:10px;
-        line-height:1.7;
-        color:#ccc;
-        ">
-
-        Please wait a few seconds
-        and tap INSTALL APP again.
-
-        <br><br>
-
-        Chrome is still preparing
-        the installation process.
-
-        </p>
-        `;
+        return;
 
     }
 
+    // FORCE CHROME MENU
+    messageBox.style.display =
+    'block';
+
+    messageBox.innerHTML = `
+
+    <h3>
+    Install App
+    </h3>
+
+    <p style="
+    margin-top:10px;
+    color:#ccc;
+    line-height:1.7;
+    ">
+
+    Tap the <b>⋮ menu</b>
+    in Chrome and choose:
+
+    <br><br>
+
+    <b>Install App</b>
+
+    </p>
+    `;
 };
 
 // INSTALLED EVENT
