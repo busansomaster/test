@@ -135,51 +135,79 @@ p{
 
 <script>
 let deferredPrompt;
-const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+
 const installBtn = document.getElementById('installBtn');
 
-installBtn.innerText = 'CHECKING...';
+const isStandalone =
+window.matchMedia('(display-mode: standalone)').matches ||
+window.navigator.standalone === true;
 
+// ALWAYS SHOW BUTTON
+installBtn.style.display = 'block';
+
+// DETECT INSTALLED APP
 if (isStandalone) {
-    installBtn.style.display = 'block';
+
     installBtn.innerText = 'OPEN APP';
 
-    installBtn.addEventListener('click', () => {
-        window.location.href = '/';
-    });
+    installBtn.onclick = () => {
+
+        // YOUR MAIN APP PAGE
+        window.location.href = './home.html';
+
+    };
+
 } else {
-    installBtn.style.display = 'none';
+
+    installBtn.innerText = 'INSTALL APP';
+
+    // SAVE INSTALL PROMPT
+    window.addEventListener('beforeinstallprompt', (e) => {
+
+        e.preventDefault();
+
+        deferredPrompt = e;
+
+        console.log('Install prompt available');
+
+    });
+
+    installBtn.onclick = async () => {
+
+        // OFFICIAL INSTALL POPUP
+        if (deferredPrompt) {
+
+            deferredPrompt.prompt();
+
+            const { outcome } = await deferredPrompt.userChoice;
+
+            console.log(outcome);
+
+            deferredPrompt = null;
+
+        } else {
+
+            // FALLBACK
+            alert(
+                'To install:\\n\\n' +
+                '1. Open in Chrome\\n' +
+                '2. Tap the 3 dots menu\\n' +
+                '3. Tap Install App'
+            );
+
+        }
+
+    };
+
 }
 
-window.addEventListener('beforeinstallprompt', (e) => {
-    e.preventDefault();
-    deferredPrompt = e;
-
-    installBtn.style.display = 'block';
-});
-
-installBtn.addEventListener('click', async () => {
-
-    if (!deferredPrompt) {
-        alert('Installation option not available. Use Chrome menu > Install App');
-        return;
-    }
-
-    deferredPrompt.prompt();
-
-    const { outcome } = await deferredPrompt.userChoice;
-
-    if (outcome === 'accepted') {
-        console.log('App installed');
-    } else {
-        console.log('Install cancelled');
-    }
-
-    deferredPrompt = null;
-});
-
+// INSTALLED EVENT
 window.addEventListener('appinstalled', () => {
+
+    installBtn.innerText = 'OPEN APP';
+
     alert('BUSANSO NATION installed successfully!');
+
 });
 </script>
 <script>
