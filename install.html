@@ -150,100 +150,113 @@ p{
 </div>
 
 <script>
-let deferredPrompt = null;
+let deferredPrompt;
 
-const installBtn = document.getElementById('installBtn');
-const messageBox = document.getElementById('messageBox');
+const installBtn =
+document.getElementById('installBtn');
+
+const messageBox =
+document.getElementById('messageBox');
 
 const isStandalone =
 window.matchMedia('(display-mode: standalone)').matches ||
 window.navigator.standalone === true;
 
-// INSTALLED
+// REGISTER SERVICE WORKER
+if ('serviceWorker' in navigator) {
+
+    navigator.serviceWorker
+    .register('./service-worker.js')
+    .then(() => {
+
+        console.log('SW registered');
+
+    })
+    .catch(err => {
+
+        console.log(err);
+
+    });
+
+}
+
+// INSTALLED APP
 if(isStandalone){
 
     installBtn.innerText = 'OPEN APP';
 
     installBtn.onclick = () => {
+
         window.location.href = './home.html';
+
     };
 
 } else {
 
-    installBtn.innerText = 'PREPARING INSTALL...';
-    installBtn.disabled = true;
+    installBtn.innerText = 'INSTALL APP';
 
-    // WAIT FOR INSTALL PROMPT
-    window.addEventListener('beforeinstallprompt', (e) => {
+    // INSTALL EVENT
+    window.addEventListener(
+    'beforeinstallprompt',
+
+    (e) => {
 
         e.preventDefault();
 
         deferredPrompt = e;
 
-        installBtn.disabled = false;
-        installBtn.innerText = 'INSTALL APP';
-
-        // AUTO OPEN INSTALL POPUP
-        setTimeout(async () => {
-
-            try {
-
-                await deferredPrompt.prompt();
-
-                const choice =
-                await deferredPrompt.userChoice;
-
-                if(choice.outcome === 'accepted'){
-
-                    installBtn.innerText =
-                    'INSTALLING...';
-
-                }
-
-            } catch(err){
-                console.log(err);
-            }
-
-        }, 1000);
+        console.log(
+        'INSTALL PROMPT READY'
+        );
 
     });
 
     // BUTTON CLICK
-    installBtn.onclick = async () => {
+    installBtn.onclick =
+    async () => {
 
+        // REAL INSTALL
         if(deferredPrompt){
 
-            await deferredPrompt.prompt();
+            deferredPrompt.prompt();
 
             const result =
             await deferredPrompt.userChoice;
 
-            if(result.outcome === 'accepted'){
-
-                installBtn.innerText =
-                'INSTALLING...';
-
-            }
+            console.log(result.outcome);
 
         } else {
 
-            messageBox.style.display = 'block';
+            // FALLBACK UI
+            messageBox.style.display =
+            'block';
 
             messageBox.innerHTML = `
-            <h3>Preparing Installation...</h3>
 
-            <p>
-            Please wait a few seconds.
-            Chrome has not enabled installation yet.
+            <h3>
+            Installation Not Ready
+            </h3>
+
+            <p style="
+            margin-top:10px;
+            color:#ccc;
+            line-height:1.6;
+            ">
+
+            Please wait a few seconds,
+            then tap INSTALL APP again.
+
+            <br><br>
+
+            If nothing happens:
+
+            <br><br>
+
+            Open this website in
+            <b>Google Chrome</b>.
+
             </p>
             `;
-
-            // RETRY
-            setTimeout(() => {
-
-                location.reload();
-
-            }, 4000);
 
         }
 
@@ -252,22 +265,20 @@ if(isStandalone){
 }
 
 // AFTER INSTALL
-window.addEventListener('appinstalled', () => {
+window.addEventListener(
+'appinstalled',
 
-    installBtn.innerText = 'OPEN APP';
+() => {
+
+    installBtn.innerText =
+    'OPEN APP';
 
     installBtn.onclick = () => {
 
-        window.location.href = './home.html';
+        window.location.href =
+        './home.html';
 
     };
-
-    // AUTO OPEN APP
-    setTimeout(() => {
-
-        window.location.href = './home.html';
-
-    }, 1500);
 
 });
 </script>
